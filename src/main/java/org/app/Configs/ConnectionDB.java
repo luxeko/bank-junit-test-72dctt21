@@ -1,33 +1,33 @@
 package org.app.Configs;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class Connection {
-    private static Connection instance;
+public class ConnectionDB {
+    private static ConnectionDB instance;
 
-    private Connection() {
+    private ConnectionDB() {
     }
 
-    public static synchronized Connection getInstance() {
+    public static synchronized ConnectionDB getInstance() {
         if(instance == null) {
             ConstraintVariable.loadConfigDB();
-            instance = new Connection();
+            instance = new ConnectionDB();
         }
         return instance;
     }
-    public java.sql.Connection getConnection() {
-        java.sql.Connection con = null;
+    public Connection getConnection() {
+        Connection con = null;
         try {
             con = DriverManager.getConnection(ConstraintVariable.getDatabaseUrl(), ConstraintVariable.getDatabaseUsername(), ConstraintVariable.getDatabasePassword());
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println(" -- Connect Successfully -- ");
         return con;
     }
     //Close Connection
-    public void closeConnection(java.sql.Connection con) {
+    public void closeConnection(Connection con) {
         if (con != null) {
             try {
                 con.close();

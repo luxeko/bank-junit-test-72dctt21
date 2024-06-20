@@ -1,9 +1,11 @@
 package org.app.Services.interfaces;
 
+import org.app.Entities.Account;
+
 import java.util.List;
 
 public interface IAccount {
-    void createAccount();
+    void createAccount(Account account)  throws Exception;
 
     void updateAccount();
 
@@ -11,7 +13,7 @@ public interface IAccount {
 
     void payInAccount();
 
-    List<?> showListAccount();
-    List<?> showAccountInfoByAccountId();
-    List<?> showAccountInfoByCustomerId();
+    List<Account> showListAccount();
+    List<Account> showAccountInfoByAccountId();
+    List<Account> showAccountInfoByCustomerId();
 }

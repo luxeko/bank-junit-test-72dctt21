@@ -1,6 +1,7 @@
 package org.app;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.DoubleStream;
 
 public class Calculator {
