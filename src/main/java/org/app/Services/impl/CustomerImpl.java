@@ -8,18 +8,20 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 public class CustomerImpl implements ICustomer {
     Connection connection = ConnectionDB.getInstance().getConnection();
+    private SimpleDateFormat sdf_sql = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public Customer getInfo(int userId) {
         if (connection == null) {
             System.out.println("Connection failed!");
         }
-        String query = "Select * from customer where userId = ?";
+        String query = "Select * from customers where userId = ?";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, userId);
@@ -51,6 +53,9 @@ public class CustomerImpl implements ICustomer {
                         rs.getString("customerType")
                 );
                 customer.output();
+                rs.close();
+                preparedStatement.close();
+                return customer;
             } else {
                 System.out.println("Chưa có data");
             }
@@ -63,7 +68,7 @@ public class CustomerImpl implements ICustomer {
     }
 
     @Override
-    public void createCustomer(Customer customer) {
+    public boolean createCustomer(Customer customer) {
         customer.setId(1);
         customer.setCustomerCode("C001");
         customer.setCustomerName("John Doe");
@@ -91,22 +96,73 @@ public class CustomerImpl implements ICustomer {
             preparedStatement.setString(7, customer.getGender());
             preparedStatement.setString(8, customer.getAddress());
             preparedStatement.setString(9, customer.getCustomerType());
-
             int result = preparedStatement.executeUpdate();
-            // b3: Xử lý kết quả
-            if (result == 0)
-                System.out.println("Thêm mới tài khoản thất bại");
-            else
-                System.out.println("Thêm mới tài khoản thành công");
             preparedStatement.close();
+            // b3: Xử lý kết quả
+            if (result == 0) {
+                return false;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     @Override
-    public void updateCustomer() {
+    public boolean updateCustomer(Customer customer) {
+        // b1: Kết nối đên database
+        if (connection == null) {
+            System.out.println("Connection failed!");
+        }
+        String query = "Update customers set customerName = ?, citizenIdentificationNumber = ?, phoneNumber = ?, email = ?, dob = ?, gender = ?, address = ?, customerType = ? where id = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            java.sql.Date date_sql = java.sql.Date.valueOf(sdf_sql.format(customer.getDob()));
+            preparedStatement.setString(1, customer.getCustomerName());
+            preparedStatement.setString(2, customer.getCitizenIdentificationNumber());
+            preparedStatement.setString(3, customer.getPhoneNumber());
+            preparedStatement.setString(4, customer.getEmail());
+            preparedStatement.setDate(5, date_sql);
+            preparedStatement.setString(6, customer.getGender());
+            preparedStatement.setString(7, customer.getAddress());
+            preparedStatement.setString(8, customer.getCustomerType());
+            preparedStatement.setInt(9, customer.getId());
 
+            int result = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            //B3:XU LY KET QUA
+            if (result == 0) {
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    @Override
+    public int getUserIdByCustomerCode(String customerCode) {
+        if (connection == null) {
+            System.out.println("Connection failed!");
+        }
+        String query = "Select userId from customers where customerCode = ?";
+        try {
+            int userId = 0;
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, customerCode);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                userId = rs.getInt("userId");
+                preparedStatement.close();
+                rs.close();
+                return userId;
+            }
+            preparedStatement.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @Override
@@ -117,5 +173,29 @@ public class CustomerImpl implements ICustomer {
     @Override
     public List<?> showListCustomer() {
         return null;
+    }
+
+    @Override
+    public boolean checkExistType(String value, String dataType, int id) {
+        if (connection == null) {
+            System.out.println("Connection failed!");
+        }
+        String query = "Select * from customers where id != ? and " + dataType + " = ?";
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, id);
+            preparedStatement.setString(2, value);
+            ResultSet rs = preparedStatement.executeQuery();
+            if (rs.next()) {
+                preparedStatement.close();
+                rs.close();
+                return true;
+            }
+            preparedStatement.close();
+            rs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

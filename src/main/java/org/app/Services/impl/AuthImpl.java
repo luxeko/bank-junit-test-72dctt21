@@ -14,7 +14,6 @@ public class AuthImpl implements IAuth {
 
     @Override
     public User login(String username, String password) {
-        System.out.println("test");
         if (connection == null) {
             System.out.println("Connection failed!");
         }

@@ -5,12 +5,16 @@ import org.app.Entities.Customer;
 import java.util.List;
 
 public interface ICustomer {
-    void createCustomer(Customer customer);
+    boolean createCustomer(Customer customer);
+
     Customer getInfo(int userId);
 
-    void updateCustomer();
+    boolean updateCustomer(Customer customer);
+    int getUserIdByCustomerCode(String customerCode);
 
     void deleteCustomer();
 
     List<?> showListCustomer();
+
+    boolean checkExistType(String value, String dataType, int id);
 }

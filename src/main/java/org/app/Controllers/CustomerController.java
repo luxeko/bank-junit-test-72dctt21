@@ -1,28 +1,35 @@
 package org.app.Controllers;
 
 import org.app.Entities.Customer;
+import org.app.Services.impl.CustomerImpl;
 import org.app.Services.interfaces.ICustomer;
 
+import java.util.List;
+
 public class CustomerController {
-    private ICustomer iCustomer;
+    private final CustomerImpl customer = new CustomerImpl();
 
     public CustomerController() {
     }
 
-    public CustomerController(ICustomer iCustomer) {
-        this.iCustomer = iCustomer;
+    public List<Customer> getListCustomer() {
+        return null;
     }
 
     public Customer getInfo(int userId) {
-        return this.iCustomer.getInfo(userId);
+        return this.customer.getInfo(userId);
     }
 
-    public void addCustomer(Customer customer) {
+    public boolean addCustomer(Customer customer) {
         // Business logic to add customer
-        iCustomer.createCustomer(customer);
+       return this.customer.createCustomer(customer);
     }
 
-    public void updateCustomer(Customer customer) {
+    public boolean updateCustomer(Customer customer) {
+        return this.customer.updateCustomer(customer);
+    }
 
+    public int getUserIdByCustomerCode(String customerCode) {
+        return this.customer.getUserIdByCustomerCode(customerCode);
     }
 }
