@@ -1,6 +1,11 @@
 package org.app.Configs;
 
-import java.util.ResourceBundle;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Properties;
 
 public class ConstraintVariable {
     public static String getDatabaseUrl() {
@@ -20,22 +25,31 @@ public class ConstraintVariable {
     private static String DATABASE_PASSWORD;
 
     public static void loadConfigDB() {
-        ResourceBundle rs = ResourceBundle.getBundle("org.app.application");
-        if (rs.containsKey("DATABASE_URL")) {
-            DATABASE_URL = rs.getString("DATABASE_URL");
-        } else {
-            DATABASE_URL = "jdbc:sqlserver://127.0.0.1:1433;databaseName=bank_tester";
-        }
-        if (rs.containsKey("DATABASE_USERNAME")) {
-            DATABASE_USERNAME = rs.getString("DATABASE_USERNAME");
-        } else {
-            DATABASE_USERNAME = "bank";
-        }
-        if (rs.containsKey("DATABASE_PASSWORD")) {
-            DATABASE_PASSWORD = rs.getString("DATABASE_PASSWORD");
-        } else {
-            DATABASE_PASSWORD = "123456";
-        }
+        try (InputStream input = ConstraintVariable.class.getClassLoader().getResourceAsStream("application.properties")) {
 
+            Properties prop = new Properties();
+            if (input == null) {
+                System.out.println("Sorry, unable to find config.properties");
+                return;
+            }
+            prop.load(input);
+            if (prop.getProperty("DATABASE_URL") != null) {
+                DATABASE_URL = prop.getProperty("DATABASE_URL");
+            } else {
+                DATABASE_URL = "jdbc:sqlserver://127.0.0.1:1433;databaseName=bank_tester";
+            }
+            if (prop.getProperty("DATABASE_USERNAME") != null) {
+                DATABASE_USERNAME = prop.getProperty("DATABASE_USERNAME");
+            } else {
+                DATABASE_USERNAME = "bank";
+            }
+            if (prop.getProperty("DATABASE_PASSWORD") != null) {
+                DATABASE_PASSWORD = prop.getProperty("DATABASE_PASSWORD");
+            } else {
+                DATABASE_PASSWORD = "123456";
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

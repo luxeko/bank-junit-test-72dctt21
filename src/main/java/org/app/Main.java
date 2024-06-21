@@ -7,6 +7,7 @@ import org.app.Controllers.TransactionController;
 import org.app.Entities.Account;
 import org.app.Entities.Customer;
 import org.app.Entities.User;
+import org.app.Services.interfaces.IAuth;
 
 import java.util.Scanner;
 
@@ -61,7 +62,6 @@ public class Main {
     public static void showMenu(User user) {
         Customer customer = new Customer();
         Account account = new Account();
-        AccountController accountController = new AccountController();
         CustomerController customerController = new CustomerController();
         TransactionController transactionController = new TransactionController();
         Scanner sc = new Scanner(System.in);
