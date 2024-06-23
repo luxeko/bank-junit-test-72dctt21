@@ -119,8 +119,15 @@ public class Main {
                                 choose2 = Integer.parseInt(sc.nextLine());
                                 switch (choose2) {
                                     case 1:
+                                        boolean result = accountController.insertAccount(account);
+                                        if (result) {
+                                            System.out.println("Thêm mới thành công");
+                                        } else {
+                                            System.out.println("Thêm mới thất bại");
+                                        }
                                         break;
                                     case 2:
+                                        accountController.payInAccount();
                                         break;
                                     case 3:
                                         break;
