@@ -11,7 +11,8 @@ public class CustomerController {
 
     public CustomerController() {
     }
-
+    public CustomerController(ICustomer iCustomer) {
+    }
     public void getListCustomer() {
         customer.showListCustomer();
     }
