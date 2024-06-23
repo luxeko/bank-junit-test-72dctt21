@@ -72,16 +72,6 @@ public class CustomerImpl implements ICustomer {
 
     @Override
     public boolean createCustomer(Customer customer) {
-        customer.setId(1);
-        customer.setCustomerCode("C001");
-        customer.setCustomerName("John Doe");
-        customer.setCitizenIdentificationNumber("123456789");
-        customer.setPhoneNumber("0123456789");
-        customer.setEmail("john.doe@example.com");
-        customer.setDob(new Date());
-        customer.setGender("Male");
-        customer.setAddress("123 Main St");
-        customer.setCustomerType("Normal");
         // b1: Kết nối đên database
         if (connection == null) {
             System.out.println("Connection failed!");
