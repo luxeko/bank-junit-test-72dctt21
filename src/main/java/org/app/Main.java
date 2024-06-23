@@ -60,7 +60,6 @@ public class Main {
         AccountController accountController = new AccountController();
         Scanner sc = new Scanner(System.in);
         if (user.getRole().trim().equals("customer")) {
-            boolean flag = true;
             do {
                 System.out.println("====== NGÂN HÀNG ======");
                 System.out.println("1. Thông tin cá nhân");
@@ -171,16 +170,14 @@ public class Main {
                         } while (check3);
                         break;
                     case 4:
-                        flag = false;
                         String[] args = new String[0];
                         Main.main(args);
                         break;
                     default:
                         System.out.println("Nhập sai!. Vui lòng nhập lại");
                 }
-            } while (flag);
+            } while (true);
         } else {
-            boolean flag = true;
             do {
                 System.out.println("====== QUẢN LÝ THÔNG TIN NGÂN HÀNG ======");
                 System.out.println("1. Quản lý khách hàng");
@@ -195,9 +192,10 @@ public class Main {
                         int choose;
                         boolean check = true;
                         do {
-                            List<Customer> listCustomer = customerController.getListCustomer();
+                            customerController.getListCustomer();
                             System.out.println("1. Thêm mới");
                             System.out.println("2. Chỉnh sửa");
+                            System.out.println("3. Xóa");
                             System.out.println("3. Thoát");
                             System.out.println("Chọn: ");
                             try {
@@ -215,7 +213,7 @@ public class Main {
                                         System.out.print("Nhập mã khách hàng: ");
                                         String customerCode = sc.nextLine();
                                         int userId = customerController.getUserIdByCustomerCode(customerCode);
-                                        if (userId == 0) {
+                                        if (userId == -1) {
                                             System.out.println("Không tìm thấy mã khách hàng");
                                         } else {
                                             Customer customer = customerController.getInfo(userId);
@@ -228,6 +226,12 @@ public class Main {
                                         }
                                         break;
                                     case 3:
+                                        if (customerController.deleteCustomer()) {
+                                            System.out.println("Xóa khách thành công");
+                                        } else {
+                                            System.out.println("Xóa khách hàng thất bại");
+                                        }
+                                    case 4:
                                         check = false;
                                         break;
                                     default:
@@ -244,14 +248,13 @@ public class Main {
                     case 3:
                         break;
                     case 4:
-                        flag = false;
                         String[] args = new String[0];
                         Main.main(args);
                         break;
                     default:
                         System.out.println("Nhập sai!. Vui lòng nhập lại");
                 }
-            } while (flag);
+            } while (true);
         }
 
     }

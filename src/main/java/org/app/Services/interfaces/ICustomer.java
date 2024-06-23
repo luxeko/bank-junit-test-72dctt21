@@ -10,11 +10,14 @@ public interface ICustomer {
     Customer getInfo(int userId);
 
     boolean updateCustomer(Customer customer);
+
     int getUserIdByCustomerCode(String customerCode);
 
-    void deleteCustomer();
+    boolean deleteCustomer();
 
-    List<?> showListCustomer();
+    void showListCustomer();
 
     boolean checkExistType(String value, String dataType, int id);
+
+    boolean checkCustomerHaveAccount(int customerId);
 }

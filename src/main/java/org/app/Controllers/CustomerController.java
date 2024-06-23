@@ -12,8 +12,8 @@ public class CustomerController {
     public CustomerController() {
     }
 
-    public List<Customer> getListCustomer() {
-        return null;
+    public void getListCustomer() {
+        customer.showListCustomer();
     }
 
     public Customer getInfo(int userId) {
@@ -31,5 +31,9 @@ public class CustomerController {
 
     public int getUserIdByCustomerCode(String customerCode) {
         return this.customer.getUserIdByCustomerCode(customerCode);
+    }
+
+    public boolean deleteCustomer() {
+        return this.customer.deleteCustomer();
     }
 }
