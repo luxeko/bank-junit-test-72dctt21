@@ -2,6 +2,7 @@ package org.app.Controllers;
 
 import org.app.Services.impl.AccountImpl;
 import org.app.Entities.Account;
+import org.app.Services.interfaces.IAccount;
 import org.app.Services.interfaces.ICustomer;
 
 public class AccountController {
@@ -9,12 +10,20 @@ public class AccountController {
     public AccountController() {
         
     }
-    public boolean insertAccount(Account account) {
-        return this.accountImpl.createAccount(account);
+    
+    public AccountController(IAccount iAccount) {
+        
+    }
+    public void insertAccount(Account account) {
+       this.accountImpl.createAccount(account);
     }
     
     public void payInAccount() {
         this.accountImpl.payInAccount();
+    }
+    
+    public void withdrawAccount() {
+        this.accountImpl.withdrawAccount();
     }
 }
  

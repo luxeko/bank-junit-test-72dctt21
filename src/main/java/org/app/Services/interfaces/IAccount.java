@@ -5,7 +5,7 @@ import org.app.Entities.Account;
 import java.util.List;
 
 public interface IAccount {
-    boolean createAccount(Account account);
+    void createAccount(Account account);
 
     void updateAccount();
 

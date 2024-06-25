@@ -17,14 +17,17 @@ public class Account {
     private Double amountOfMoney;
     private Double limitOfMoney;
     private Date createdAt;
-    private Date updateddAt;
+    private Date updatedAt;
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private final Scanner sc = new Scanner(System.in);
+    private Scanner scTest;
+    private CustomerImpl customerImpl;
+    private AccountImpl accountImpl;
 
     public Account() {
     }
 
-    public Account(int id, int customerId, String accountNumber, String accountType, String status, Double amountOfMoney, Double limitOfMoney, Date updateddAt, Date createdAt) {
+    public Account(int id, int customerId, String accountNumber, String accountType, String status, Double amountOfMoney, Double limitOfMoney, Date updatedAt, Date createdAt) {
         this.id = id;
         this.customerId = customerId;
         this.accountNumber = accountNumber;
@@ -33,7 +36,13 @@ public class Account {
         this.amountOfMoney = amountOfMoney;
         this.limitOfMoney = limitOfMoney;
         this.createdAt = createdAt;
-        this.updateddAt = updateddAt;
+        this.updatedAt = updatedAt;
+    }
+    
+    public Account(Scanner scTest, CustomerImpl customerImpl, AccountImpl accountImpl) {
+        this.scTest = scTest;
+        this.customerImpl = customerImpl;
+        this.accountImpl = accountImpl;
     }
 
     public Account(String accountNumber, String accountType, String status) {
@@ -42,9 +51,13 @@ public class Account {
         this.status = status;
     }
 
-    public Account(String accountNumber, Double amountOfMoney) {
+    public Account(String accountNumber, Double amountOfMoney, Double limitOfMoney) {
         this.accountNumber = accountNumber;
-        this.amountOfMoney = amountOfMoney;
+        if (amountOfMoney == null) {
+            this.limitOfMoney = limitOfMoney;
+        } else {
+            this.amountOfMoney = amountOfMoney;
+        }
     }
 
     public int getCustomerId() {
@@ -103,16 +116,23 @@ public class Account {
         return simpleDateFormat.format(this.createdAt);
     }
 
+    public String getUpdatedAt2() {
+        if (updatedAt != null) {
+            return simpleDateFormat.format(this.updatedAt);
+        }
+        return null;
+    }
+
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdateddAt() {
-        return updateddAt;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdateddAt(Date updateddAt) {
-        this.updateddAt = updateddAt;
+    public void setUpdatedAt(Date updateddAt) {
+        this.updatedAt = updateddAt;
     }
 
     public Double getLimitOfMoney() {
@@ -127,29 +147,29 @@ public class Account {
         this.limitOfMoney = limitOfMoney;
     }
 
-    public void input() {
+    public boolean input() {
         CustomerImpl customerImpl = new CustomerImpl();
         AccountImpl accountImpl = new AccountImpl();
         List<Customer> listCustomer = (List<Customer>) customerImpl.showListCustomer();
-        List<Account> lissAccount = accountImpl.showListAccount();
+        List<Account> listAccount = accountImpl.showListAccount();
         String customerCode;
         boolean flag1;
         while (true) {
             flag1 = false;
             System.out.println("Nhập mã khách hàng: ");
             customerCode = sc.nextLine();
-            for (Customer customer : listCustomer) {
-                //Kiểm tra có tồn tại mã khách hàng
-                if (customerCode.equals(customer.getCustomerCode())) {
-                    this.customerId = customer.getId();
-                    flag1 = true;
+                for (Customer customer : listCustomer) {
+                    //Kiểm tra có tồn tại mã khách hàng
+                    if (customerCode.equals(customer.getCustomerCode())) {
+                        this.customerId = customer.getId();
+                        flag1 = true;
+                    }
                 }
-            }
             if (flag1 == true) {
                 int type;
                 int checkAccount = 0;
                 //check kh_id đã tồn tại chưa
-                for (Account acc : lissAccount) {
+                for (Account acc : listAccount) {
                     if (this.customerId == acc.getCustomerId()) {
                         checkAccount++;
                     }
@@ -157,41 +177,45 @@ public class Account {
                 //Chưa có tk
                 if (checkAccount == 0) {
                     inputGeneral();
-                    this.accountType = "Prepay";
+                    this.accountType = "Prepay (VISA)";
                     type = 0;
                     if (type == 0) {
-                        this.amountOfMoney = 0d;
+                        this.amountOfMoney = 0.0;
                         this.limitOfMoney = 1000000d;
                     }
                 } else if (checkAccount == 1) {
-                    String chonVisa;
+                    String chooseVisa;
                     System.out.println("Bạn đã có tài khoản trả trước");
                     System.out.println("Tạo tài khoản trả sau (ViSA)");
                     System.out.println("Đồng ý. Chọn 'y' ");
-                    chonVisa = sc.nextLine();
-                    if (chonVisa.equals("y")) {
+                    System.out.println("Không đồng ý. Chọn 'n' ");
+                    chooseVisa = sc.nextLine();
+                    if (chooseVisa.equals("y")) {
                         inputGeneral();
-                        this.accountType = "TraSau (VISA)";
+                        this.accountType = "Postpaid (VISA)";
                         type = 1;
                         if (type == 1) {
-                            this.limitOfMoney = 30000000d;
-                            this.amountOfMoney = 30000000d;
+                            this.limitOfMoney = 1000000d;
+                            this.amountOfMoney = 3000000d;
                         }
                     } else {
                         System.out.println("Tạo thất bại");
                         System.exit(1);
-                        break;
+                        return false;
                     }
                 } else {
                     System.out.println("Bạn đã có 2 tài khoản! Không thể tạo thêm");
+                    return false;
                 }
-                break;
-            }
-            if (flag1 == false) {
+                return true;
+            } else if (flag1 == false) {
                 System.out.println("Mã khách hàng không tồn tại!");
+                return false;
             }
+            return true;
         }
     }
+
     public void inputGeneral() {
         AccountImpl accountImpl = new AccountImpl();
         List<Account> listAccount = accountImpl.showListAccount();
@@ -246,8 +270,17 @@ public class Account {
                     break;
                 }
             } catch (Exception e) {
-                System.out.println("Ngày tạo ko hợp lệ!");;
+                System.out.println("Ngày tạo ko hợp lệ!");
             }
+        }
+    }
+
+    public boolean checkNumber(String number) {
+        try {
+            Integer.parseInt(number);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 

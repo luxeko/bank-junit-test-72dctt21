@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CustomerImpl implements ICustomer {
+
     Connection connection = ConnectionDB.getInstance().getConnection();
     private SimpleDateFormat sdf_sql = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -195,7 +196,7 @@ public class CustomerImpl implements ICustomer {
     }
 
     @Override
-    public void showListCustomer() {
+    public List<Customer> showListCustomer() {
         List<Customer> listCustomer = new ArrayList<>();
         if (connection == null) {
             System.out.println("Connection failed!");
@@ -241,14 +242,13 @@ public class CustomerImpl implements ICustomer {
             }
             rs.close();
             preparedStatement.close();
-            if (!flag) {
+            if (flag == false) {
                 System.out.println("Chưa có data");
             }
-            rs.close();
-            preparedStatement.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return listCustomer;
     }
 
     @Override

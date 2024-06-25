@@ -26,35 +26,58 @@ public class AccountImpl implements IAccount {
     private static Scanner sc = new Scanner(System.in);
 
     @Override
-    public boolean createAccount(Account account){
-        account.input();
-        // b1: Kết nối đên database
+    public void createAccount(Account account) {
+        boolean input = account.input();
+
         if (connection == null) {
             System.out.println("Connection failed!");
         }
-        // b2: Thực hiện truy vấn
-        String query = "insert into Accounts (customerId, accountNumber, accountType, status, amountOfMoney, limitOfMoney, createdAt) values (?, ?, ?, ?, ?, ?,convert(date, ?, 103))";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, account.getCustomerId());
-            preparedStatement.setString(2, account.getAccountNumber());
-            preparedStatement.setString(3, account.getAccountType());
-            preparedStatement.setString(4, account.getStatus());
-            preparedStatement.setDouble(5, account.getAmountOfMoney());
-            preparedStatement.setDouble(6, account.getLimitOfMoney());
-            preparedStatement.setString(7, account.getCreatedAt2());
 
-            int result = preparedStatement.executeUpdate();
-            preparedStatement.close();
-            // b3: Xử lý kết quả
-            if (result == 0) {
-                return false;
+//        if (input) {
+            String query = "insert into Accounts (customerId, accountNumber, accountType, status, amountOfMoney, limitOfMoney, createdAt, updatedAt) values (?, ?, ?, ?, ?, ?,convert(date, ?, 103), convert(date, ?, 103))";
+            try {
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setInt(1, account.getCustomerId());
+                preparedStatement.setString(2, account.getAccountNumber());
+                preparedStatement.setString(3, account.getAccountType());
+                preparedStatement.setString(4, account.getStatus());
+
+                Double amountOfMoney = account.getAmountOfMoney();
+                if (amountOfMoney == null) {
+                    amountOfMoney = 0.0;
+                }
+                preparedStatement.setDouble(5, amountOfMoney);
+
+                Double limitOfMoney = account.getLimitOfMoney();
+                if (limitOfMoney == null) {
+                    limitOfMoney = 1000000d;
+                }
+                preparedStatement.setDouble(6, limitOfMoney);
+
+                String createdAt2 = account.getCreatedAt2();
+                if (createdAt2 == null) {
+                    createdAt2 = "";
+                }
+                preparedStatement.setString(7, createdAt2);
+
+                String updatedAt2 = account.getUpdatedAt2();
+                if (updatedAt2 == null) {
+                    updatedAt2 = "";
+                }
+                preparedStatement.setString(8, updatedAt2);
+
+                int result = preparedStatement.executeUpdate();
+                preparedStatement.close();
+
+                if(result != 0) {
+                    System.out.println("Tạo thành công");
+                } else {
+                    System.out.println("Tạo thất bại");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
+//        }
     }
 
     @Override
@@ -74,6 +97,7 @@ public class AccountImpl implements IAccount {
         accountNumber = sc.nextLine();
         java.time.LocalDate currentDate = java.time.LocalDate.now();
         updatedAt = java.sql.Date.valueOf(currentDate);
+        System.out.println(updatedAt);
         // Lấy ra số tiền của tài khoản
         Double amount = queryAmountByAccountId(accountNumber);
         Double limitOfMoney = getLimitOfMoneyByAcc(accountNumber);
@@ -90,7 +114,7 @@ public class AccountImpl implements IAccount {
                         choose = sc.nextLine();
                         if (choose.equals("y")) {
                             System.out.println("Active thành công");
-                            updateStatus(accountNumber, "Prepay", status, updatedAt);
+                            updateStatus(accountNumber, "Prepay (VISA)", status, updatedAt);
                             break;
                         } else {
                             break;
@@ -104,16 +128,17 @@ public class AccountImpl implements IAccount {
                         withdrawMoney = Double.parseDouble(sc.nextLine());
                         if (withdrawMoney > 0) {
                             if (withdrawMoney <= limitOfMoney) {
-                                if (withdrawMoney <= amount) {
-                                    amount -= (Double) withdrawMoney;
-                                    UpdateAmountByAccountId(accountNumber, amount, updatedAt);
-                                    transaction.createTransaction(accountNumber, "WithdrawMoney", withdrawMoney);
-                                } else {
-                                    System.out.println("Số tiền trong tài khoản không đủ!");
-                                }
+//                                if (withdrawMoney <= amount) {
+//                                    amount -= (Double) withdrawMoney;
+                                limitOfMoney -= withdrawMoney;
+                                UpdateLimitByAccountId(accountNumber, limitOfMoney, updatedAt);
+                                transaction.createTransaction(accountNumber, "WithdrawMoney", withdrawMoney);
+
+//                                } else {
+//                                    System.out.println("Số tiền trong tài khoản không đủ!");
+//                                }
                             } else {
                                 System.out.println("Bạn không được rút quá hạn mức: " + limitOfMoney);
-
                             }
                         } else {
                             System.out.println("Số tiền phải là số dương");
@@ -129,7 +154,7 @@ public class AccountImpl implements IAccount {
                         choose = sc.nextLine();
                         if (choose.equals("y")) {
                             System.out.println("Active thành công");
-                            updateStatus(accountNumber, "TraSau (VISA)", status, updatedAt);
+                            updateStatus(accountNumber, "Postpaid (VISA)", status, updatedAt);
                             break;
                         } else {
                             break;
@@ -202,7 +227,7 @@ public class AccountImpl implements IAccount {
             ps.setString(1, accountNumber);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                acc = new Account(rs.getString("accountNumber"), rs.getDouble("amountOfMoney"));
+                acc = new Account(rs.getString("accountNumber"), rs.getDouble("amountOfMoney"), null);
             }
             rs.close();
             ps.close();
@@ -217,13 +242,13 @@ public class AccountImpl implements IAccount {
         if (connection == null) {
             System.out.println("Connection failed");
         }
-        String sql = "SELECT accountNumber, limitOfMoney FROM Account WHERE accountNumber = ?";
+        String sql = "SELECT accountNumber, limitOfMoney FROM Accounts WHERE accountNumber = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, accountNumber);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                acc = new Account(rs.getString("accountNumber"), rs.getDouble("limitOfMoney"));
+                acc = new Account(rs.getString("accountNumber"), null, rs.getDouble("limitOfMoney"));
             }
             rs.close();
             ps.close();
@@ -265,7 +290,7 @@ public class AccountImpl implements IAccount {
                 acc.setAmountOfMoney(rs.getDouble("amountOfMoney"));
                 acc.setLimitOfMoney(rs.getDouble("limitOfMoney"));
                 acc.setCreatedAt(rs.getDate("createdAt"));
-                acc.setUpdateddAt(rs.getDate("updatedAt"));
+                acc.setUpdatedAt(rs.getDate("updatedAt"));
                 listAcount.add(acc);
             }
             rs.close();
@@ -278,7 +303,6 @@ public class AccountImpl implements IAccount {
         }
         return listAcount;
     }
-    
 
     public int checkAccountType(String accountNumber) {
         List<Account> listAccount = new ArrayList<Account>();
@@ -302,7 +326,7 @@ public class AccountImpl implements IAccount {
         }
 
         for (Account acc : listAccount) {
-            if (acc.getAccountType().equalsIgnoreCase("Prepay")) {
+            if (acc.getAccountType().equalsIgnoreCase("Prepay (VISA)")) {
                 return 0;
             }
         }
@@ -365,6 +389,36 @@ public class AccountImpl implements IAccount {
         }
     }
 
+    public void UpdateLimitByAccountId(String accountNumber, Double limitOfMoney, Date updatedAt) {
+        // Connection con = ConnectionDB.getInstance().getConnection();
+        if (connection == null) {
+            System.out.println("Connection failed");
+        }
+        String sql = "exec AccountUpdateLimit ?, ?, ?, ?, ?";
+        try {
+            CallableStatement cs = connection.prepareCall(sql);
+            cs.setString(1, accountNumber);
+            cs.setDouble(2, limitOfMoney);
+            java.sql.Date updatedAtSql = new java.sql.Date(updatedAt.getTime());
+            cs.setDate(3, updatedAtSql);
+            cs.registerOutParameter(4, Types.INTEGER);
+            cs.registerOutParameter(5, Types.NVARCHAR);
+            cs.executeUpdate();
+            int code_res = cs.getInt(4);
+            String mess_res = cs.getString(5);
+            cs.close();
+            if (code_res == 0) {
+                System.out.println(mess_res);
+            } else {
+                System.out.println(mess_res);
+                System.out.println("Số tiền còn trong tài khoản: " + (Double) limitOfMoney);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // ConnectionDB.getInstance().closeConnection(con);
+    }
+
     public void UpdateAmountByAccountId(String accountNumber, Double amountOfMoney, Date updatedAt) {
         // Connection con = ConnectionDB.getInstance().getConnection();
         if (connection == null) {
@@ -420,7 +474,7 @@ public class AccountImpl implements IAccount {
                         choose = sc.nextLine();
                         if (choose.equals("y")) {
                             System.out.println("Active thành công");
-                            updateStatus(choose, "Prepay", status, updatedAt);
+                            updateStatus(choose, "Prepay (VISA)", status, updatedAt);
                             break;
                         } else {
                             break;
@@ -475,7 +529,7 @@ public class AccountImpl implements IAccount {
                 acc.setAmountOfMoney(rs.getDouble("amountOfMoney"));
                 acc.setLimitOfMoney(rs.getDouble("limitOfMoney"));
                 acc.setCreatedAt(rs.getDate("createdAt"));
-                acc.setUpdateddAt(rs.getDate("updateddAt"));
+                acc.setUpdatedAt(rs.getDate("updatedAt"));
 
                 listAccount.add(acc);
             }
