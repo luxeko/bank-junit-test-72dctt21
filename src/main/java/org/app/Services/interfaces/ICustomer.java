@@ -15,7 +15,7 @@ public interface ICustomer {
 
     boolean deleteCustomer();
 
-    void showListCustomer();
+    List<Customer> showListCustomer();
 
     boolean checkExistType(String value, String dataType, int id);
 
