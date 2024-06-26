@@ -1,6 +1,5 @@
 package org.app.Entities;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Transaction {
@@ -9,19 +8,16 @@ public class Transaction {
     private String actionType;
     private Double amountOfMoney;
     private Date transactionDate;
-    private String transactionPlace;
-    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public Transaction() {
     }
 
-    public Transaction(int id, String accountNumber, String actionType, Double amountOfMoney, Date transactionDate, String transactionPlace) {
+    public Transaction(int id, String accountNumber, String actionType, Double amountOfMoney, Date transactionDate) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.actionType = actionType;
         this.amountOfMoney = amountOfMoney;
         this.transactionDate = transactionDate;
-        this.transactionPlace = transactionPlace;
     }
 
     public int getId() {
@@ -62,13 +58,5 @@ public class Transaction {
 
     public void setTransactionDate(Date transactionDate) {
         this.transactionDate = transactionDate;
-    }
-
-    public String getTransactionPlace() {
-        return transactionPlace;
-    }
-
-    public void setTransactionPlace(String transactionPlace) {
-        this.transactionPlace = transactionPlace;
     }
 }
